@@ -8,16 +8,16 @@ import numpy as np
 def get_metadata(config):
     metadata = {}
     if config.eval.task in ['mnist', 'fmnist', 'fmnist_conv', 'emnist']: 
-        metadata['num_train'] = 48000 # 60000 * 0.8 # just use all 60000 for comparing metasgmcmc 
+        metadata['num_train'] = 48000 
         metadata['num_valid'] = 12000
         metadata['num_test'] =  10000
         metadata['num_classes'] = 10
         metadata['shape'] = (28, 28, 1)
     elif config.eval.task in ['c10_frn','c100_frn']:
-        metadata['num_train'] = 40960 # 40000
+        metadata['num_train'] = 40960
         metadata['num_valid'] = 10000
         metadata['num_test'] =  10000
-        metadata['num_classes'] = 10 if config.eval.task == 'cifar' else 100 # this is wrong
+        metadata['num_classes'] = 10 if config.eval.task == 'cifar' else 100 
         metadata['shape'] = (32, 32, 3)
     else:
         raise ValueError(f'Invalid data {config.eval.task}')
@@ -66,13 +66,13 @@ def get_cifar(name:str, split:str,  data_augmentation:int=0, num_data=None):
       image_std =  tf.constant([[[0.2470, 0.2435, 0.2616]]])
 
       if data_augmentation==1:
-          image = tf.pad(image, [[2, 2], [2, 2], [0, 0]],'CONSTANT') # crop_padding = 4 , constant? REFLECT? 아 ㅅㅂ 왜  성능이 떨어지노
-          image = tf.image.random_crop(image, image_shape) # crop
+          image = tf.pad(image, [[2, 2], [2, 2], [0, 0]],'CONSTANT') 
+          image = tf.image.random_crop(image, image_shape)
           image = tf.image.random_flip_left_right(image)
       else:
           pass
 
-      image = tf.cast(image, tf.float32) / 255.0 # 이미 scale 이 0,1사이 scale로 되어있는거같은데?
+      image = tf.cast(image, tf.float32) / 255.0 
       image = (image - image_mean) / image_std
 
       return image, label
