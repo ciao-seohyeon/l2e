@@ -151,21 +151,21 @@ def traj_loss_antithetic_es(
   def function_bma(state):
     data = datas[1] 
     task = truncated_step.task_family.task_fn(state.task_param)
-    params = jax.tree_util.tree_map(flat_first , state.inner_opt_state.params)
-    params = jax.tree_util.tree_map(lambda x: x[500::500] , params)
-    logits = jax.vmap(make_logit , in_axes= (0,None,None))(params , task , jax.tree_util.tree_map(lambda x:flat_first(x[0]),data))
+    params = jax.tree_util.tree_map(flat_first, state.inner_opt_state.params)
+    params = jax.tree_util.tree_map(lambda x: x[-500::50], params)
+    logits = jax.vmap(make_logit , in_axes= (0, None, None))(params, task, jax.tree_util.tree_map(lambda x:flat_first(x[0]), data))
     K = logits.shape[0]
     logits_ = jax.nn.log_softmax(logits, -1)
     batch_ens_logits = logsumexp(logits_, 0) - jnp.log(K)
     batch_ens_logits = jnp.expand_dims(batch_ens_logits, axis=0)
     
     try:
-      label = jax.tree_util.tree_map(lambda x : x[0] , data)['label']
+      label = jax.tree_util.tree_map(lambda x : x[0], data)['label']
     except:
-      label = jax.tree_util.tree_map(lambda x : x[0] , data)['target']
+      label = jax.tree_util.tree_map(lambda x : x[0], data)['target']
     labels = jax.nn.one_hot(label, batch_ens_logits.shape[-1]) # [tasks,batch,num_classes]
     nlls = jnp.mean(-jnp.sum(batch_ens_logits * labels,-1))
-    return jnp.expand_dims(nlls,0) # [tasks,]
+    return jnp.expand_dims(nlls, 0) # [tasks,]
   
   if not is_valid:
     pos_loss = function_bma(p_ys) 
