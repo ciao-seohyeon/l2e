@@ -4,7 +4,7 @@ train:
   loss: bma
   change_prob: 1.
   num_tasks: 1
-  outer_iterations: 5000
+  outer_iterations: 1000
   outer_learning_rate: 0.01
   max_length: 3001
   min_length: 3000
@@ -12,5 +12,5 @@ meta:
   exp_mult: 0.001
   step_mult: 0.5
   precond_mult: 0.001
-  noise_mult: 0.001
+  noise_mult: 1.
     
