@@ -19,6 +19,11 @@ def get_metadata(config):
         metadata['num_test'] =  10000
         metadata['num_classes'] = 10 if config.eval.task == 'cifar' else 100 
         metadata['shape'] = (32, 32, 3)
+    elif config.eval.task in ['tiny_frn']:
+        metadata['num_train'] = 100000
+        metadata['num_test'] =  10000
+        metadata['num_classes'] = 200
+        metadata['shape'] = (64, 64, 3)
     else:
         raise ValueError(f'Invalid data {config.eval.task}')
 
@@ -85,6 +90,16 @@ def get_cifar(name:str, split:str,  data_augmentation:int=0, num_data=None):
 
 
 
+def get_tinyimagenet(name:str, split:str, num_data=None):
+    # Same npy files and preprocessing (uint8 -> float32 / 255) as
+    # dataset/imagenet.py, which the README asks to place in ./dataset.
+    images = np.load(f'./dataset/{name}/{split}_images.npy')[:num_data]
+    labels = np.load(f'./dataset/{name}/{split}_labels.npy')[:num_data]
+    images = images.astype(np.float32) / 255.0
+    labels = labels.astype(np.int32)
+    return jnp.asarray(images), jnp.asarray(labels)
+
+
 def get_data(config, metadata, split='train'):
     if split == 'train':
         num_data = metadata['num_train']
@@ -109,6 +124,8 @@ def get_data(config, metadata, split='train'):
     elif config.eval.task in ['c100_frn']:
         data = 'cifar100'
         return get_cifar(name=data, split=split, num_data=num_data)
+    elif config.eval.task in ['tiny_frn']:
+        return get_tinyimagenet('TinyImageNet200_x64', split=split, num_data=num_data)
 
     else:
         raise ValueError(f'Unknown dataset {config.eval.task}')
